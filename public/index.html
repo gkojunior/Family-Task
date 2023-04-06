@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Tasks</title>
+		<link rel="stylesheet" href="./styles.css" />
+	</head>
+
+	<body>
+		<div class="nav">
+			<h2>Tasks</h2>
+			<button type="button" id="logoff" style="display: none">LOGOFF</button>
+			<div id="logon-register" style="display: none">
+				<button type="button" id="logon">LOGON</button>
+				<button type="button" id="register">REGISTER</button>
+			</div>
+		</div>
+
+		<hr />
+		<div id="logon-register" style="display: none">
+			<p id="message"></p>
+		</div>
+		<div id="logon-div" style="display: none">
+			<form>
+				<div>
+					<label for="email">EMAIL:</label>
+					<input type="email" id="email" />
+				</div>
+				<div>
+					<label for="password">PASSWORD:</label>
+					<input type="password" id="password" />
+				</div>
+				<button type="button" id="logon-button">LOGON</button>
+				<button type="button" id="logon-cancel">CANCEL</button>
+			</form>
+		</div>
+		<div id="register-div" style="display: none">
+			<form>
+				<div>
+					<label for="name">NAME:</label>
+					<input type="text" id="name" />
+				</div>
+				<div>
+					<label for="email1">EMAIL:</label>
+					<input type="email" id="email1" />
+				</div>
+				<div>
+					<label for="password1">PASSWORD:</label>
+					<input type="password" id="password1" />
+				</div>
+				<div>
+					<label for="password2">VERIFY PASSWORD:</label>
+					<input type="password" id="password2" />
+				</div>
+				<button type="button" id="register-button">REGISTER</button>
+				<button type="button" id="register-cancel">CANCEL</button>
+			</form>
+		</div>
+		<div id="tasks" style="display: none">
+			<p id="tasks-message"></p>
+			<table id="tasks-table" style="display: none">
+				<tr id="tasks-table-header">
+					<th>Title</th>
+					<th>Description</th>
+					<th>Status</th>
+					<!-- <th>Completed</th> -->
+					<th colspan="2"></th>
+				</tr>
+			</table>
+			<button type="button" id="add-task">ADD TASK</button>
+		</div>
+		<div id="edit-task" style="display: none">
+			<form>
+				<div>
+					<label for="title">TITLE:</label>
+					<input type="text" id="title" />
+				</div>
+				<div>
+					<label for="description">DESCRIPTION:</label>
+					<input type="text" id="description" />
+				</div>
+				<div>
+					<label for="status">STATUS:</label>
+					<select id="status">
+						<option value="pending">In Progress</option>
+						<option value="pending">Almost Done</option>
+					</select>
+				</div>
+
+				<!-- Fix completed status -->
+
+				<!-- <div>
+					<label for="completed">COMPLETED:</label>
+					<input type="checkbox" id="completed" />
+				</div> -->
+				<button type="button" id="adding-task">ADD</button>
+				<button type="button" id="edit-cancel">CANCEL</button>
+			</form>
+		</div>
+		<script src="./tasks.js"></script>
+	</body>
+</html>
