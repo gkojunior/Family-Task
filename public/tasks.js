@@ -15,9 +15,10 @@ async function buildTasksTable(tasksTable, tasksTableHeader, token, message) {
 				return 0
 			} else {
 				for (let i = 0; i < data.tasks.length; i++) {
-					let editButton = `<td><button type="button" class="editButton" data-id=${data.tasks[i]._id}>edit</button></td>`
-					let deleteButton = `<td><button type="button" class="deleteButton" data-id=${data.tasks[i]._id}>delete</button></td>`
-					let rowHTML = `<td>${data.tasks[i].title}</td><td>${data.tasks[i].description}</td><td>${data.tasks[i].status}</td>${editButton}${deleteButton}`
+					let editButton = `<td><button type="button" class="editButton" data-id=${data.tasks[i]._id}><span>Edit</span></button></td>`
+					let deleteButton = `<td><button type="button" class="deleteButton" data-id=${data.tasks[i]._id}><span>Delete</span></button></td>`
+					let completedButton = `<td><input type="checkbox" class="completedButton" data-id=${data.tasks[i]._id}></input></td>`
+					let rowHTML = `<td>${data.tasks[i].title}</td><td>${data.tasks[i].description}</td><td>${data.tasks[i].status}</td>${completedButton}${editButton}${deleteButton}`
 					let rowEntry = document.createElement('tr')
 					rowEntry.innerHTML = rowHTML
 					children.push(rowEntry)
@@ -61,11 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const title = document.getElementById('title')
 	const description = document.getElementById('description')
 	const status = document.getElementById('status')
+	const completed = document.getElementById('completed')
 	const addingTask = document.getElementById('adding-task')
 	const tasksMessage = document.getElementById('tasks-message')
 	const editCancel = document.getElementById('edit-cancel')
-
-	// section 2
 
 	let showing = logonRegister
 	let token = null
@@ -86,10 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				tasksMessage.textContent = ''
 				tasksTable.style.display = 'block'
 			} else {
-				tasksMessage.textContent = 'There are no task to display for this user.'
+				tasksMessage.textContent = 'No task to display for this user.'
 				tasksTable.style.display = 'none'
 			}
-			tasks.style.display = 'block'
+			tasks.style.display = 'flex'
 			showing = tasks
 		} else {
 			logonRegister.style.display = 'block'
@@ -114,9 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			token = null
 			showing.style.display = 'none'
 			logonRegister.style.display = 'block'
+			logoff.style.display = 'none'
+			addTask.style.display = 'none'
+			editTask.style.display = 'none'
 			showing = logonRegister
 			tasksTable.replaceChildren(tasksTableHeader) // don't want other users to see
-			message.textContent = 'You are logged off.'
+			message.textContent = 'You have successfully logged off!'
 		} else if (e.target === logon) {
 			showing.style.display = 'none'
 			logonDiv.style.display = 'block'
@@ -150,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				})
 				const data = await response.json()
 				if (response.status === 200) {
-					message.textContent = `Logon successful.  Welcome ${data.user.name}`
+					message.textContent = ` Welcome back ${data.user.name}.  `
 					token = data.token
 					localStorage.setItem('token', token)
 					showing.style.display = 'none'
@@ -184,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					})
 					const data = await response.json()
 					if (response.status === 201) {
-						message.textContent = `Registration successful.  Welcome ${data.user.name}`
+						message.textContent = `Your registration was successful. Welcome ${data.user.name}!`
 						token = data.token
 						localStorage.setItem('token', token)
 						showing.style.display = 'none'
@@ -205,20 +208,22 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		// section 4
-		else if (e.target === addingTask) {
+		else if (e.target === addTask) {
 			showing.style.display = 'none'
 			editTask.style.display = 'block'
 			showing = editTask
 			delete editTask.dataset.id
 			title.value = ''
 			description.value = ''
-			status.value = 'pending'
-			addingTask.textContent = 'add'
+			status.value = ''
+			completed.value = false
+			addingTask.textContent = 'Add'
 		} else if (e.target === editCancel) {
 			showing.style.display = 'none'
 			title.value = ''
 			description.value = ''
-			status.value = 'pending'
+			status.value = ''
+			completed.value = false
 			thisEvent = new Event('startDisplay')
 			document.dispatchEvent(thisEvent)
 		} else if (e.target === addingTask) {
@@ -236,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							title: title.value,
 							description: description.value,
 							status: status.value,
+							completed: completed.value,
 						}),
 					})
 					const data = await response.json()
@@ -247,7 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
 						document.dispatchEvent(thisEvent)
 						title.value = ''
 						description.value = ''
-						status.value = 'pending'
+						status.value = ''
+						completed.value = false
 					} else {
 						// failure
 						message.textContent = data.msg
@@ -260,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				// this is an update
 				suspendInput = true
 				try {
-					const taskID = editJob.dataset.id
+					const taskID = editTask.dataset.id
 					const response = await fetch(`/api/v1/tasks/${taskID}`, {
 						method: 'PATCH',
 						headers: {
@@ -271,15 +278,17 @@ document.addEventListener('DOMContentLoaded', () => {
 							title: title.value,
 							description: description.value,
 							status: status.value,
+							// completed: status.value,
 						}),
 					})
 					const data = await response.json()
 					if (response.status === 200) {
-						message.textContent = 'The entry was updated.'
+						message.textContent = 'The task was updated successfully.'
 						showing.style.display = 'none'
 						title.value = ''
 						description.value = ''
-						status.value = 'pending'
+						status.value = 'Everyone'
+						completed.value = ''
 						thisEvent = new Event('startDisplay')
 						document.dispatchEvent(thisEvent)
 					} else {
@@ -290,9 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			}
 			suspendInput = false
-		}
-
-		// section 5
+		} // section 5
 		else if (e.target.classList.contains('editButton')) {
 			editTask.dataset.id = e.target.dataset.id
 			suspendInput = true
@@ -306,17 +313,48 @@ document.addEventListener('DOMContentLoaded', () => {
 				})
 				const data = await response.json()
 				if (response.status === 200) {
-					title.value = data.job.title 
-					description.value = data.job.description
-					status.value = data.job.status
+					title.value = data.task.title
+					description.value = data.task.description
+					status.value = data.task.status
+					completed.value = data.task.completed
 					showing.style.display = 'none'
 					showing = editTask
 					showing.style.display = 'block'
-					addingTask.textContent = 'update'
+					addingTask.textContent = 'Update'
 					message.textContent = ''
 				} else {
 					// might happen if the list has been updated since last display
 					message.textContent = 'The tasks entry was not found'
+					thisEvent = new Event('startDisplay')
+					document.dispatchEvent(thisEvent)
+				}
+			} catch (err) {
+				message.textContent = 'A communications error has occurred.'
+			}
+			suspendInput = false
+		} // section 6:Delete function
+		else if (e.target.classList.contains('deleteButton')) {
+			editTask.dataset.id = e.target.dataset.id
+			suspendInput = true
+			try {
+				const response = await fetch(`/api/v1/tasks/${e.target.dataset.id}`, {
+					method: 'Delete',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				})
+				if (response.status === 200) {
+					message.textContent = 'Great Job! The task was successfully deleted.'
+					showing.style.display = 'none'
+					thisEvent = new Event('startDisplay')
+					document.dispatchEvent(thisEvent)
+					title.value = ''
+					description.value = ''
+					status.value = ''
+					completed.value = false
+				} else {
+					message.textContent = 'The task was not found'
 					thisEvent = new Event('startDisplay')
 					document.dispatchEvent(thisEvent)
 				}
