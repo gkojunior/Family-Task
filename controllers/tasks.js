@@ -1,4 +1,4 @@
-const Task = require('../models/task')
+const Task = require('../models/Task')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
 
@@ -33,12 +33,12 @@ const createTask = async (req, res) => {
 }
 const updateTask = async (req, res) => {
 	const {
-		body: { task, date },
+		body: { title, description, completed },
 		user: { userId },
 		params: { id: taskId },
 	} = req
 
-	if (task === '' || date === '') {
+	if (title === '' || description === '' || completed === '') {
 		throw new BadRequestError('Task or Date fields cannot be empty')
 	}
 	const tasks = await Task.findByIdAndUpdate(
@@ -57,7 +57,7 @@ const deleteTask = async (req, res) => {
 		params: { id: taskId },
 	} = req
 
-	const task = await Task.findByIdAndRemove({
+	const task = await Task.findByIdAndDelete({
 		_id: taskId,
 		createdBy: userId,
 	})
