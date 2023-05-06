@@ -8,6 +8,7 @@ async function buildTasksTable(tasksTable, tasksTableHeader, token, message) {
 			},
 		})
 		const data = await response.json()
+		console.log(data)
 		var children = [tasksTableHeader]
 		if (response.status === 200) {
 			if (data.count === 0) {
@@ -15,14 +16,23 @@ async function buildTasksTable(tasksTable, tasksTableHeader, token, message) {
 				return 0
 			} else {
 				for (let i = 0; i < data.tasks.length; i++) {
-					let editButton = `<td><button type="button" class="editButton" data-id=${data.tasks[i]._id}><span>Edit</span></button></td>`
-					let deleteButton = `<td><button type="button" class="deleteButton" data-id=${data.tasks[i]._id}><span>Delete</span></button></td>`
-					let completedButton = `<td><input type="checkbox" class="completedButton" data-id=${data.tasks[i]._id}></input></td>`
+					let editButton = `<td><button type="button" class="editButton" data-id=${data.tasks[i]._id}>Edit</button></td>`
+
+					let deleteButton = `<td><button type="button" class="deleteButton" data-id=${data.tasks[i]._id}>Delete</button></td>`
+					let completedButton
+					if (data.tasks[i].completed) {
+						completedButton = `<td><input type="checkbox" class="completedButton" data-id=${data.tasks[i]._id} checked></input></td>`
+					} else {
+						completedButton = `<td><input type="checkbox" class="completedButton" data-id=${data.tasks[i]._id}></input></td>`
+					}
+					console.log(data.tasks[i].completed)
+
 					let rowHTML = `<td>${data.tasks[i].title}</td><td>${data.tasks[i].description}</td><td>${data.tasks[i].status}</td>${completedButton}${editButton}${deleteButton}`
 					let rowEntry = document.createElement('tr')
 					rowEntry.innerHTML = rowHTML
 					children.push(rowEntry)
 				}
+
 				tasksTable.replaceChildren(...children)
 			}
 			return data.count
@@ -216,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			title.value = ''
 			description.value = ''
 			status.value = ''
-			completed.value = false
+			completed.value = ''
 			addingTask.textContent = 'Add'
 		} else if (e.target === editCancel) {
 			showing.style.display = 'none'
@@ -228,9 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			document.dispatchEvent(thisEvent)
 		} else if (e.target === addingTask) {
 			if (!editTask.dataset.id) {
-				// this is an attempted add
+				// logic for adding a task
 				suspendInput = true
 				try {
+					console.log('sending request', completed.value() || 'no completed')
 					const response = await fetch('/api/v1/tasks', {
 						method: 'POST',
 						headers: {
@@ -245,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						}),
 					})
 					const data = await response.json()
+					console.log(data)
 					if (response.status === 201) {
 						//successful create
 						message.textContent = 'The task entry was created.'
@@ -278,17 +290,19 @@ document.addEventListener('DOMContentLoaded', () => {
 							title: title.value,
 							description: description.value,
 							status: status.value,
-							// completed: status.value,
+							completed: completed.value,
 						}),
 					})
 					const data = await response.json()
+					console.log(data)
 					if (response.status === 200) {
+						console.log(response)
 						message.textContent = 'The task was updated successfully.'
 						showing.style.display = 'none'
 						title.value = ''
 						description.value = ''
-						status.value = 'Everyone'
-						completed.value = ''
+						status.value = ''
+						completed.value = true
 						thisEvent = new Event('startDisplay')
 						document.dispatchEvent(thisEvent)
 					} else {
@@ -352,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					title.value = ''
 					description.value = ''
 					status.value = ''
-					completed.value = false
+					completed.value = ''
 				} else {
 					message.textContent = 'The task was not found'
 					thisEvent = new Event('startDisplay')
