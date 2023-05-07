@@ -19,12 +19,10 @@ async function buildTasksTable(tasksTable, tasksTableHeader, token, message) {
 					let editButton = `<td><button type="button" class="editButton" data-id=${data.tasks[i]._id}>Edit</button></td>`
 
 					let deleteButton = `<td><button type="button" class="deleteButton" data-id=${data.tasks[i]._id}>Delete</button></td>`
-					let completedButton
-					if (data.tasks[i].completed) {
-						completedButton = `<td><input type="checkbox" class="completedButton" data-id=${data.tasks[i]._id} checked></input></td>`
-					} else {
-						completedButton = `<td><input type="checkbox" class="completedButton" data-id=${data.tasks[i]._id}></input></td>`
-					}
+					const completedButton = `<td><input type="checkbox" disabled class="completedButton" ${
+						data.tasks[i].completed ? 'checked' : ''
+					} data-id=${data.tasks[i]._id}></input></td>`
+
 					console.log(data.tasks[i].completed)
 
 					let rowHTML = `<td>${data.tasks[i].title}</td><td>${data.tasks[i].description}</td><td>${data.tasks[i].status}</td>${completedButton}${editButton}${deleteButton}`
@@ -95,9 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (count > 0) {
 				tasksMessage.textContent = ''
 				tasksTable.style.display = 'block'
+				addTask.style.display = 'flex'
 			} else {
 				tasksMessage.textContent = 'No task to display for this user.'
 				tasksTable.style.display = 'none'
+				addTask.style.display = 'flex'
 			}
 			tasks.style.display = 'flex'
 			showing = tasks
@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		} else if (e.target === logon) {
 			showing.style.display = 'none'
 			logonDiv.style.display = 'block'
+			addTask.style.display = 'flex'
 			showing = logonDiv
 		} else if (e.target === register) {
 			showing.style.display = 'none'
@@ -226,14 +227,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			title.value = ''
 			description.value = ''
 			status.value = ''
-			completed.value = ''
+			completed.checked = ''
 			addingTask.textContent = 'Add'
 		} else if (e.target === editCancel) {
 			showing.style.display = 'none'
 			title.value = ''
 			description.value = ''
 			status.value = ''
-			completed.value = false
+			completed.checked = false
 			thisEvent = new Event('startDisplay')
 			document.dispatchEvent(thisEvent)
 		} else if (e.target === addingTask) {
@@ -241,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				// logic for adding a task
 				suspendInput = true
 				try {
-					console.log('sending request', completed.value() || 'no completed')
 					const response = await fetch('/api/v1/tasks', {
 						method: 'POST',
 						headers: {
@@ -252,11 +252,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							title: title.value,
 							description: description.value,
 							status: status.value,
-							completed: completed.value,
+							completed: completed.checked,
 						}),
 					})
 					const data = await response.json()
-					console.log(data)
 					if (response.status === 201) {
 						//successful create
 						message.textContent = 'The task entry was created.'
@@ -266,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						title.value = ''
 						description.value = ''
 						status.value = ''
-						completed.value = false
+						completed.checked = data.task.completed
 					} else {
 						// failure
 						message.textContent = data.msg
@@ -290,19 +289,15 @@ document.addEventListener('DOMContentLoaded', () => {
 							title: title.value,
 							description: description.value,
 							status: status.value,
-							completed: completed.value,
+							completed: completed.checked,
 						}),
 					})
 					const data = await response.json()
 					console.log(data)
 					if (response.status === 200) {
-						console.log(response)
 						message.textContent = 'The task was updated successfully.'
 						showing.style.display = 'none'
-						title.value = ''
-						description.value = ''
-						status.value = ''
-						completed.value = true
+
 						thisEvent = new Event('startDisplay')
 						document.dispatchEvent(thisEvent)
 					} else {
@@ -330,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					title.value = data.task.title
 					description.value = data.task.description
 					status.value = data.task.status
-					completed.value = data.task.completed
+					completed.checked = data.task.completed
 					showing.style.display = 'none'
 					showing = editTask
 					showing.style.display = 'block'
@@ -366,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					title.value = ''
 					description.value = ''
 					status.value = ''
-					completed.value = ''
+					completed.checked = ''
 				} else {
 					message.textContent = 'The task was not found'
 					thisEvent = new Event('startDisplay')
