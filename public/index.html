@@ -25,19 +25,21 @@
 				<div>
 					<header>Family Task</header>
 					<li>
-						<a href="api/v1/login">
+						<a href="/api/v1/login">
 							<i class="fa fa-home"></i>
 							Home
 						</a>
 					</li>
 					<li>
-						<a href="api/v1/login">
+						<a href="/api/v1/login">
 							<i class="fa fa-sign-in"></i>
 							Sign-in
 						</a>
 					</li>
 					<li>
-						<a href="/register"> <i class="fa fa-registered"></i>Register </a>
+						<a href="/api/v1/register">
+							<i class="fa fa-registered"></i>Register
+						</a>
 					</li>
 					<li>
 						<a href="#">
@@ -58,12 +60,10 @@
 			<div class="nav">
 				<!-- <header class="title">Family Task</header> -->
 
-				<button type="button" id="logoff" style="display: none">
-					<span>Log-off</span>
-				</button>
+				<button type="button" id="logoff" style="display: none">Log-off</button>
 				<div id="logon-register" style="display: none">
-					<button type="button" id="logon"><span>Sign-in</span></button>
-					<button type="button" id="register"><span>Register</span></button>
+					<button type="button" id="logon">Sign-in</button>
+					<button type="button" id="register">Register</button>
 				</div>
 			</div>
 			<div>
@@ -79,8 +79,8 @@
 						<label for="password">Password:</label>
 						<input type="password" id="password" />
 					</div>
-					<button type="button" id="logon-button"><span>Sign-in</span></button>
-					<button type="button" id="logon-cancel"><span>Cancel</span></button>
+					<button type="button" id="logon-button">Sign-in</button>
+					<button type="button" id="logon-cancel">Cancel</button>
 				</form>
 			</div>
 			<div id="register-div" style="display: none">
@@ -101,12 +101,8 @@
 						<label for="password2">Verify password:</label>
 						<input type="password" id="password2" />
 					</div>
-					<button type="button" id="register-button">
-						<span>Register</span>
-					</button>
-					<button type="button" id="register-cancel">
-						<span>Cancel</span>
-					</button>
+					<button type="button" id="register-button">Register</button>
+					<button type="button" id="register-cancel">Cancel</button>
 				</form>
 			</div>
 			<div id="tasks" style="display: none">
@@ -154,8 +150,8 @@
 						/><br /><br />
 					</div>
 
-					<button type="button" id="adding-task"><span>Add</span></button>
-					<button type="button" id="edit-cancel"><span>Cancel</span></button>
+					<button type="button" id="adding-task">Add</button>
+					<button type="button" id="edit-cancel">Cancel</button>
 				</form>
 			</div>
 		</section>
